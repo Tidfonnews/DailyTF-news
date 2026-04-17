@@ -1,187 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Photo Calendar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 0 16px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tidfon news</title>
 
-    h1 {
-      text-align: center;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
 
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-top: 20px;
-    }
+h1 {
+  text-align: center;
+}
 
-    .weekday, .day {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      min-height: 90px;
-      padding: 8px;
-      box-sizing: border-box;
-    }
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  font-size: 20px;
+  font-weight: bold;
+}
 
-    .weekday {
-      background: #f5f5f5;
-      font-weight: bold;
-      text-align: center;
-      min-height: auto;
-    }
+button {
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-    .day-number {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+}
 
-    .photo-link {
-      display: block;
-      font-size: 12px;
-      text-decoration: none;
-      word-break: break-word;
-      margin-bottom: 4px;
-    }
+.weekday, .day {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  min-height: 90px;
+  padding: 8px;
+}
 
-    .empty {
-      background: #fafafa;
-    }
+.weekday {
+  background: #f5f5f5;
+  font-weight: bold;
+  text-align: center;
+}
 
-    .has-photo {
-      background: #f0f8ff;
-    }
+.day-number {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
 
-    #viewer {
-      margin-top: 30px;
-      text-align: center;
-    }
+.has-photo {
+  background: #f0f8ff;
+}
 
-    #viewer-date {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
+#viewer {
+  margin-top: 30px;
+  text-align: center;
+}
 
-    #viewer-images {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
+#viewer-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
 
-    #viewer-images img {
-      width: 100%;
-      border-radius: 12px;
-      display: block;
-    }
-  </style>
+#viewer-images img {
+  width: 100%;
+  border-radius: 12px;
+}
+</style>
 </head>
+
 <body>
-  <h1>Tidfon news</h1>
-  <div id="month-title" style="text-align:center; font-size:20px; font-weight:bold;"></div>
 
-  <div class="calendar" id="calendar"></div>
+<h1>Tidfon news</h1>
 
-  <div id="viewer">
-    <div id="viewer-date"></div>
-    <div id="viewer-images"></div>
-  </div>
+<div class="header">
+  <button onclick="prevMonth()">←</button>
+  <div id="month-title"></div>
+  <button onclick="nextMonth()">→</button>
+</div>
 
-  <script>
-    const year = 2026;
-    const month = 4;
+<div class="calendar" id="calendar"></div>
 
-    const photos = {
-      "2026-04-07": ["2026-04-07.JPG"],
-      "2026-04-10": ["2026-04-10-1.JPG", "2026-04-10-2.JPG"],
-      "2026-04-11": ["2026-04-11.JPG"],
-      "2026-04-12": ["2026-04-12.JPG"],
-      "2026-04-13": ["2026-04-13-1.JPG", "2026-04-13-2.JPG"],
-      "2026-04-14": ["2026-04-14.JPG"],
-      "2026-04-15": ["2026-04-15.JPG"],
-      "2026-04-16": ["2026-04-16.JPG"],
-      "2026-04-17": ["2026-04-17.JPG"]
-    };
+<div id="viewer">
+  <div id="viewer-date"></div>
+  <div id="viewer-images"></div>
+</div>
 
-    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const calendar = document.getElementById("calendar");
-    const monthTitle = document.getElementById("month-title");
-    const viewerDate = document.getElementById("viewer-date");
-    const viewerImages = document.getElementById("viewer-images");
+<script>
 
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0);
-    const daysInMonth = lastDay.getDate();
-    const startWeekday = firstDay.getDay();
+let currentYear = 2026;
+let currentMonth = 4;
 
-    monthTitle.textContent = firstDay.toLocaleString("en-US", {
-      month: "long",
-      year: "numeric"
-    });
+const photos = {
 
-    weekdays.forEach(day => {
-      const div = document.createElement("div");
-      div.className = "weekday";
-      div.textContent = day;
-      calendar.appendChild(div);
-    });
+"2026-04-07": ["2026-04-07.JPG"],
+"2026-04-10": ["2026-04-10-1.JPG", "2026-04-10-2.JPG"],
+"2026-04-11": ["2026-04-11.JPG"],
+"2026-04-12": ["2026-04-12.JPG"],
+"2026-04-13": ["2026-04-13-1.JPG", "2026-04-13-2.JPG"],
+"2026-04-14": ["2026-04-14.JPG"],
+"2026-04-15": ["2026-04-15.JPG"],
+"2026-04-16": ["2026-04-16.JPG"],
+"2026-04-17": ["2026-04-17.JPG"]
 
-    for (let i = 0; i < startWeekday; i++) {
-      const div = document.createElement("div");
-      div.className = "day empty";
-      calendar.appendChild(div);
-    }
+};
 
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      const div = document.createElement("div");
-      div.className = "day";
+const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-      const number = document.createElement("div");
-      number.className = "day-number";
-      number.textContent = d;
-      div.appendChild(number);
+const calendar = document.getElementById("calendar");
+const monthTitle = document.getElementById("month-title");
+const viewerDate = document.getElementById("viewer-date");
+const viewerImages = document.getElementById("viewer-images");
 
-      if (photos[dateStr]) {
-        div.classList.add("has-photo");
+function renderCalendar() {
 
-        const link = document.createElement("a");
-        link.href = "#";
-        link.className = "photo-link";
-        link.textContent = `View ${photos[dateStr].length} photo${photos[dateStr].length > 1 ? "s" : ""}`;
-        link.onclick = (e) => {
-          e.preventDefault();
-          viewerDate.textContent = dateStr;
-          viewerImages.innerHTML = "";
+calendar.innerHTML = "";
 
-          photos[dateStr].forEach(file => {
-            const img = document.createElement("img");
-            img.src = file;
-            img.alt = dateStr;
-            viewerImages.appendChild(img);
-          });
-        };
+const firstDay = new Date(currentYear, currentMonth - 1, 1);
+const lastDay = new Date(currentYear, currentMonth, 0);
 
-        div.appendChild(link);
-      } else {
-        const noPhoto = document.createElement("div");
-        noPhoto.style.fontSize = "12px";
-        noPhoto.style.color = "#888";
-        noPhoto.textContent = "No photo";
-        div.appendChild(noPhoto);
-      }
+const daysInMonth = lastDay.getDate();
+const startWeekday = firstDay.getDay();
 
-      calendar.appendChild(div);
-    }
-  </script>
+monthTitle.textContent =
+firstDay.toLocaleString("en-US", {
+month: "long",
+year: "numeric"
+});
+
+weekdays.forEach(day => {
+
+const div = document.createElement("div");
+div.className = "weekday";
+div.textContent = day;
+
+calendar.appendChild(div);
+
+});
+
+for (let i = 0; i < startWeekday; i++) {
+
+const div = document.createElement("div");
+div.className = "day";
+
+calendar.appendChild(div);
+
+}
+
+for (let d = 1; d <= daysInMonth; d++) {
+
+const dateStr =
+currentYear + "-" +
+String(currentMonth).padStart(2,"0") + "-" +
+String(d).padStart(2,"0");
+
+const div = document.createElement("div");
+div.className = "day";
+
+const number = document.createElement("div");
+number.className = "day-number";
+number.textContent = d;
+
+div.appendChild(number);
+
+if (photos[dateStr]) {
+
+div.classList.add("has-photo");
+
+const link = document.createElement("a");
+link.href = "#";
+
+link.textContent =
+"View " +
+photos[dateStr].length +
+" photo" +
+(photos[dateStr].length > 1 ? "s" : "");
+
+link.onclick = (e) => {
+
+e.preventDefault();
+
+viewerDate.textContent = dateStr;
+viewerImages.innerHTML = "";
+
+photos[dateStr].forEach(file => {
+
+const img = document.createElement("img");
+img.src = file;
+
+viewerImages.appendChild(img);
+
+});
+
+};
+
+div.appendChild(link);
+
+}
+
+calendar.appendChild(div);
+
+}
+
+}
+
+function nextMonth() {
+
+currentMonth++;
+
+if (currentMonth > 12) {
+
+currentMonth = 1;
+currentYear++;
+
+}
+
+renderCalendar();
+
+}
+
+function prevMonth() {
+
+currentMonth--;
+
+if (currentMonth < 1) {
+
+currentMonth = 12;
+currentYear--;
+
+}
+
+renderCalendar();
+
+}
+
+renderCalendar();
+
+</script>
+
 </body>
 </html>
