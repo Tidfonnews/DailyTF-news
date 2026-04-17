@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .weekday, .day {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      min-height: 90px;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    .weekday {
+      background: #f5f5f5;
+      font-weight: bold;
+      text-align: center;
+      min-height: auto;
+    }
+
+    .day-number {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .photo-link {
+      display: block;
+      font-size: 12px;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .empty {
+      background: #fafafa;
+    }
+
+    .has-photo {
+      background: #f0f8ff;
+    }
+
+    #viewer {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    #viewer img {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 12px;
+      display: none;
+    }
+
+    #viewer-date {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Photo Calendar</h1>
+  <div id="month-title" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+
+  <div class="calendar" id="calendar"></div>
+
+  <div id="viewer">
+    <div id="viewer-date"></div>
+    <img id="viewer-img" src="" alt="Selected photo" />
+  </div>
+
+  <script>
+    const year = 2026;
+    const month = 4; // April = 4
+
+    const photos = {
+      "2026-04-07": "2026-04-07.jpg",
+      "2026-04-10": [
+      "2026-04-10-1.jpg",
+      "2026-04-10-2.jpg"
+  ],
+      "2026-04-11": "2026-04-11.jpg",
+      "2026-04-12": "2026-04-12.jpg",
+      "2026-04-07": "2026-04-07.jpg",
+      "2026-04-13": [
+      "2026-04-13-1.jpg",
+      "2026-04-13-2.jpg"
+  ],
+      "2026-04-13": "2026-04-14.jpg"
+      "2026-04-13": "2026-04-15.jpg"
+      "2026-04-13": "2026-04-16.jpg"
+      "2026-04-13": "2026-04-17.jpg"
+    };
+
+    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const calendar = document.getElementById("calendar");
+    const monthTitle = document.getElementById("month-title");
+
+    const viewerImg = document.getElementById("viewer-img");
+    const viewerDate = document.getElementById("viewer-date");
+
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startWeekday = firstDay.getDay();
+
+    monthTitle.textContent = firstDay.toLocaleString("en-US", {
+      month: "long",
+      year: "numeric"
+    });
+
+    weekdays.forEach(day => {
+      const div = document.createElement("div");
+      div.className = "weekday";
+      div.textContent = day;
+      calendar.appendChild(div);
+    });
+
+    for (let i = 0; i < startWeekday; i++) {
+      const div = document.createElement("div");
+      div.className = "day empty";
+      calendar.appendChild(div);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const div = document.createElement("div");
+      div.className = "day";
+
+      const number = document.createElement("div");
+      number.className = "day-number";
+      number.textContent = d;
+      div.appendChild(number);
+
+      if (photos[dateStr]) {
+        div.classList.add("has-photo");
+
+        const link = document.createElement("a");
+        link.href = "#";
+        link.className = "photo-link";
+        link.textContent = "View photo";
+        link.onclick = (e) => {
+          e.preventDefault();
+          viewerDate.textContent = dateStr;
+          viewerImg.src = photos[dateStr];
+          viewerImg.style.display = "inline-block";
+        };
+        div.appendChild(link);
+      } else {
+        const noPhoto = document.createElement("div");
+        noPhoto.style.fontSize = "12px";
+        noPhoto.style.color = "#888";
+        noPhoto.textContent = "No photo";
+        div.appendChild(noPhoto);
+      }
+
+      calendar.appendChild(div);
+    }
+  </script>
+</body>
+</html>
